@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Blog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #fffdf7;
+      --text: #1c1c1a;
+      --muted: #888;
+      --border: #e8e4d8;
+      --max: 680px;
+      --c1: #e8453c;
+      --c2: #f5a623;
+      --c3: #2d8c4e;
+      --c4: #3b6fd4;
+      --c5: #9b4dca;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Serif KR', Georgia, serif;
+      font-size: 16px;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 28px; }
+
+    /* HEADER */
+    header { padding: 52px 0 0; }
+
+    .profile-row { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
+
+    .avatar {
+      width: 62px; height: 62px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 3px solid transparent;
+      background: linear-gradient(var(--bg), var(--bg)) padding-box,
+                  linear-gradient(135deg, var(--c1), var(--c2), var(--c4)) border-box;
+    }
+
+    .site-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: linear-gradient(90deg, var(--c1), var(--c4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline { font-size: 0.82rem; color: var(--muted); font-style: italic; margin-top: 2px; }
+
+    nav { display: flex; border-bottom: 2px solid var(--text); }
+
+    nav button {
+      background: none; border: none; cursor: pointer;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 12px 20px 10px;
+      color: var(--muted);
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    nav button::after {
+      content: ''; position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 2px; transform: scaleX(0);
+      transition: transform 0.2s ease;
+    }
+
+    #btn-home::after    { background: var(--c1); }
+    #btn-about::after   { background: var(--c4); }
+    #btn-contact::after { background: var(--c3); }
+    #btn-admin::after   { background: var(--c5); }
+
+    nav button.active { color: var(--text); }
+    nav button.active::after { transform: scaleX(1); }
+    nav button:hover { color: var(--text); }
+
+    .page { display: none; padding-bottom: 80px; }
+    .page.visible { display: block; }
+
+    /* HOME */
+    .page-label {
+      padding: 36px 0 8px;
+      font-size: 0.75rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+    }
+
+    .post-item {
+      padding: 30px 0;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 4px 1fr;
+      gap: 0 20px;
+      opacity: 0; transform: translateY(16px);
+      animation: rise 0.45s ease forwards;
+    }
+
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+    .post-bar { border-radius: 4px; }
+    .post-item:nth-child(5n+1) .post-bar { background: var(--c1); }
+    .post-item:nth-child(5n+2) .post-bar { background: var(--c2); }
+    .post-item:nth-child(5n+3) .post-bar { background: var(--c3); }
+    .post-item:nth-child(5n+4) .post-bar { background: var(--c4); }
+    .post-item:nth-child(5n+5) .post-bar { background: var(--c5); }
+
+    .post-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; font-style: italic; }
+
+    .post-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.15rem; line-height: 1.35;
+      margin-bottom: 10px; cursor: pointer;
+      display: inline;
+      background-image: linear-gradient(currentColor, currentColor);
+      background-size: 0 1px; background-repeat: no-repeat;
+      background-position: 0 100%;
+      transition: background-size 0.25s ease;
+    }
+    .post-title:hover { background-size: 100% 1px; }
+
+    .post-excerpt { font-size: 0.9rem; color: #555; line-height: 1.75; margin-bottom: 12px; }
+
+    .post-actions { display: flex; gap: 12px; align-items: center; }
+
+    .read-more {
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.05em; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--text); border-bottom: 1.5px solid var(--text);
+      padding-bottom: 1px; transition: gap 0.2s;
+    }
+    .read-more:hover { gap: 10px; }
+
+    .edit-btn {
+      font-size: 0.75rem; color: var(--muted);
+      background: none; border: none; cursor: pointer;
+      padding: 2px 6px; border-radius: 4px;
+      transition: background 0.15s;
+      display: none;
+    }
+    .edit-btn:hover { background: var(--border); color: var(--text); }
+
+    .empty-state {
+      padding: 60px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    /* ABOUT */
+    #about { padding-top: 48px; }
+
+    .page-badge {
+      display: inline-block;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 20px;
+      color: #fff; margin-bottom: 16px;
+    }
+
+    #about .page-badge  { background: var(--c4); }
+    #contact .page-badge { background: var(--c1); }
+    #admin .page-badge   { background: var(--c5); }
+
+    .page-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem; line-height: 1.2; margin-bottom: 8px;
+    }
+
+    .page-sub { color: var(--muted); font-size: 0.88rem; font-style: italic; margin-bottom: 36px; }
+
+    .about-body p { font-size: 0.95rem; color: #333; margin-bottom: 18px; line-height: 1.85; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+
+    .chip {
+      font-size: 0.78rem; font-weight: 600;
+      padding: 5px 13px; border-radius: 20px; border: 1.5px solid;
+    }
+    .chip:nth-child(5n+1) { color: var(--c1); border-color: var(--c1); }
+    .chip:nth-child(5n+2) { color: var(--c2); border-color: var(--c2); }
+    .chip:nth-child(5n+3) { color: var(--c3); border-color: var(--c3); }
+    .chip:nth-child(5n+4) { color: var(--c4); border-color: var(--c4); }
+    .chip:nth-child(5n+5) { color: var(--c5); border-color: var(--c5); }
+
+    /* CONTACT */
+    #contact { padding-top: 48px; }
+
+    .contact-links { display: flex; flex-direction: column; gap: 14px; }
+
+    .contact-link {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 22px; border-radius: 14px;
+      text-decoration: none; color: var(--text);
+      border: 1.5px solid var(--border); background: #fff;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .contact-link:nth-child(1):hover { border-color: var(--c1); box-shadow: -5px 5px 0 var(--c1); transform: translateX(5px); }
+    .contact-link:nth-child(2):hover { border-color: var(--c4); box-shadow: -5px 5px 0 var(--c4); transform: translateX(5px); }
+    .contact-link:nth-child(3):hover { border-color: var(--c3); box-shadow: -5px 5px 0 var(--c3); transform: translateX(5px); }
+
+    .contact-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 1.15rem; flex-shrink: 0;
+    }
+    .contact-link:nth-child(1) .contact-icon { background: #fff0ef; }
+    .contact-link:nth-child(2) .contact-icon { background: #eef3ff; }
+    .contact-link:nth-child(3) .contact-icon { background: #edfaf2; }
+
+    .contact-info strong { display: block; font-size: 0.88rem; font-weight: 700; }
+    .contact-info span   { font-size: 0.8rem; color: var(--muted); }
+    .contact-arrow { margin-left: auto; color: var(--muted); }
+
+    /* ADMIN */
+    #admin { padding-top: 48px; }
+
+    .token-section {
+      background: #f5f3ee;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 32px;
+    }
+
+    .token-section label {
+      display: block;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 8px; color: var(--muted);
+    }
+
+    .token-row { display: flex; gap: 8px; }
+
+    .token-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: monospace; font-size: 0.85rem;
+      background: #fff; color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .token-input:focus { border-color: var(--c5); }
+
+    .btn {
+      padding: 10px 18px;
+      border: none; border-radius: 8px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-purple { background: var(--c5); color: #fff; }
+    .btn-red    { background: var(--c1); color: #fff; }
+    .btn-green  { background: var(--c3); color: #fff; }
+    .btn-gray   { background: var(--border); color: var(--text); }
+
+    .token-status {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      min-height: 20px;
+    }
+    .token-status.ok  { color: var(--c3); }
+    .token-status.err { color: var(--c1); }
+
+    .write-section { margin-bottom: 32px; }
+
+    .write-section h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem; margin-bottom: 16px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    .field label {
+      display: block;
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 6px; color: var(--muted);
+    }
+
+    .field input, .field textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 0.9rem;
+      background: #fff; color: var(--text);
+      outline: none; resize: vertical;
+      transition: border-color 0.2s;
+    }
+    .field input:focus, .field textarea:focus { border-color: var(--c5); }
+    .field textarea { min-height: 140px; }
+
+    .btn-row { display: flex; gap: 10px; align-items: center; }
+
+    .save-status {
+      font-size: 0.82rem; color: var(--muted);
+      font-style: italic;
+    }
+    .save-status.ok  { color: var(--c3); }
+    .save-status.err { color: var(--c1); }
+
+    .admin-posts h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem; margin-bottom: 16px;
+    }
+
+    .admin-post-item {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+
+    .admin-post-title { font-size: 0.9rem; font-weight: 600; }
+    .admin-post-date  { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    .admin-post-btns { display: flex; gap: 8px; }
+
+    .admin-post-btns button {
+      font-size: 0.75rem; font-weight: 600;
+      padding: 5px 12px; border-radius: 6px;
+      border: none; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .admin-post-btns button:hover { opacity: 0.75; }
+    .edit-post-btn   { background: #eef3ff; color: var(--c4); }
+    .delete-post-btn { background: #fff0ef; color: var(--c1); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0 40px;
+      font-size: 0.75rem; color: var(--muted);
+    }
+
+    @media (max-width: 480px) {
+      .site-title { font-size: 1.25rem; }
+      nav button { padding: 12px 12px 10px; font-size: 0.78rem; }
+      .page-heading { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="profile-row">
+      <img class="avatar" src="https://api.dicebear.com/7.x/shapes/svg?seed=sooms" alt="프로필" />
+      <div>
+        <div class="site-title" onclick="showPage('home')">Your Name</div>
+        <div class="tagline">한 줄 소개를 여기에 적으세요.</div>
+      </div>
+    </div>
+    <nav>
+      <button class="active" id="btn-home"    onclick="showPage('home')">글 목록</button>
+      <button               id="btn-about"   onclick="showPage('about')">소개</button>
+      <button               id="btn-contact" onclick="showPage('contact')">연락</button>
+      <button               id="btn-admin"   onclick="showPage('admin')">✏️ 관리</button>
+    </nav>
+  </header>
+
+  <!-- HOME -->
+  <div class="page visible" id="home">
+    <p class="page-label">최근 글</p>
+    <div id="post-list">
+      <div class="empty-state">아직 작성된 글이 없습니다.<br/>관리 탭에서 첫 글을 써보세요 ✍️</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="page" id="about">
+    <span class="page-badge">소개</span>
+    <h2 class="page-heading">안녕하세요,<br/>저는 홍길동입니다.</h2>
+    <p class="page-sub">이름과 내용을 원하시는 대로 바꿔주세요.</p>
+    <div class="about-body">
+      <p>여기에 본인 소개를 자유롭게 적으세요. 어떤 일을 하는지, 무엇에 관심 있는지, 왜 이 블로그를 운영하는지를 담으면 좋습니다.</p>
+      <p>현재 <strong>회사/학교</strong>에서 일하고 있습니다. 이전에는 <strong>이전 경력</strong>에 있었습니다.</p>
+      <p>이 블로그에서는 주로 어떤 주제의 글을 쓸지 독자에게 알려주세요.</p>
+      <div class="chips">
+        <span class="chip">관심사 1</span>
+        <span class="chip">관심사 2</span>
+        <span class="chip">관심사 3</span>
+        <span class="chip">관심사 4</span>
+        <span class="chip">관심사 5</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="page" id="contact">
+    <span class="page-badge">연락</span>
+    <h2 class="page-heading">언제든지<br/>연락 주세요.</h2>
+    <p class="page-sub">아래 채널로 편하게 연락하실 수 있습니다.</p>
+    <div class="contact-links">
+      <a class="contact-link" href="mailto:your@email.com">
+        <div class="contact-icon">✉️</div>
+        <div class="contact-info"><strong>이메일</strong><span>your@email.com</span></div>
+        <span class="contact-arrow">→</span>
+      </a>
+      <a class="contact-link" href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener">
+        <div class="contact-icon">💼</div>
+        <div class="contact-info"><strong>LinkedIn</strong><span>linkedin.com/in/yourprofile</span></div>
+        <span class="contact-arrow">→</span>
+      </a>
+      <a class="contact-link" href="https://github.com/sooms-park" target="_blank" rel="noopener">
+        <div class="contact-icon">🐙</div>
+        <div class="contact-info"><strong>GitHub</strong><span>github.com/sooms-park</span></div>
+        <span class="contact-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="page" id="admin">
+    <span class="page-badge">관리</span>
+    <h2 class="page-heading">글 관리</h2>
+    <p class="page-sub">여기서 글을 작성하고 수정할 수 있어요.</p>
+
+    <!-- Token -->
+    <div class="token-section">
+      <label>GitHub Personal Access Token</label>
+      <div class="token-row">
+        <input class="token-input" id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+        <button class="btn btn-purple" onclick="saveToken()">저장</button>
+      </div>
+      <div class="token-status" id="token-status"></div>
+    </div>
+
+    <!-- Write -->
+    <div class="write-section">
+      <h3 id="write-heading">새 글 작성</h3>
+      <input type="hidden" id="edit-index" value="" />
+      <div class="field">
+        <label>제목</label>
+        <input type="text" id="post-title-input" placeholder="글 제목을 입력하세요" />
+      </div>
+      <div class="field">
+        <label>요약 (목록에 표시)</label>
+        <input type="text" id="post-excerpt-input" placeholder="한두 문장으로 요약해주세요" />
+      </div>
+      <div class="field">
+        <label>본문</label>
+        <textarea id="post-body-input" placeholder="글 내용을 자유롭게 작성하세요..."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="savePost()">저장하기</button>
+        <button class="btn btn-gray"  onclick="cancelEdit()" id="cancel-btn" style="display:none">취소</button>
+        <span class="save-status" id="save-status"></span>
+      </div>
+    </div>
+
+    <!-- Post list in admin -->
+    <div class="admin-posts">
+      <h3>작성된 글</h3>
+      <div id="admin-post-list">
+        <p style="color:var(--muted);font-size:0.88rem;font-style:italic;">아직 작성된 글이 없습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>© 2025 Your Name</p></footer>
+</div>
+
+<script>
+  // ── Config ──────────────────────────────────────
+  const GITHUB_USER = 'sooms-park';
+  const GITHUB_REPO = 'sooms-park.github.io';
+  const DATA_FILE   = 'posts.json';
+  const BRANCH      = 'main';
+  // ────────────────────────────────────────────────
+
+  let posts = [];
+  let fileSha = null;
+
+  // ── Token ──
+  function getToken() { return localStorage.getItem('gh_token') || ''; }
+
+  function saveToken() {
+    const t = document.getElementById('token-input').value.trim();
+    if (!t) return;
+    localStorage.setItem('gh_token', t);
+    setTokenStatus('토큰이 저장되었습니다. 글을 불러오는 중...', 'ok');
+    loadPosts();
+  }
+
+  function setTokenStatus(msg, type) {
+    const el = document.getElementById('token-status');
+    el.textContent = msg;
+    el.className = 'token-status ' + (type || '');
+  }
+
+  // ── GitHub API ──
+  async function githubGet(path) {
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`, {
+      headers: {
+        'Authorization': `token ${getToken()}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    return res;
+  }
+
+  async function githubPut(path, content, sha, message) {
+    const body = {
+      message,
+      content: btoa(unescape(encodeURIComponent(content))),
+      branch: BRANCH
+    };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${getToken()}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    return res;
+  }
+
+  // ── Load posts ──
+  async function loadPosts() {
+    if (!getToken()) return;
+    try {
+      const res = await githubGet(DATA_FILE);
+      if (res.status === 404) {
+        posts = [];
+        fileSha = null;
+        renderAll();
+        return;
+      }
+      if (!res.ok) throw new Error('불러오기 실패');
+      const data = await res.json();
+      fileSha = data.sha;
+      posts = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, '')))));
+      renderAll();
+      setTokenStatus('✓ 연결됨 · 글 ' + posts.length + '개', 'ok');
+    } catch (e) {
+      setTokenStatus('오류: ' + e.message, 'err');
+    }
+  }
+
+  // ── Save post ──
+  async function savePost() {
+    const title   = document.getElementById('post-title-input').value.trim();
+    const excerpt = document.getElementById('post-excerpt-input').value.trim();
+    const body    = document.getElementById('post-body-input').value.trim();
+    const editIdx = document.getElementById('edit-index').value;
+
+    if (!title) { setSaveStatus('제목을 입력해주세요.', 'err'); return; }
+    if (!getToken()) { setSaveStatus('먼저 토큰을 저장해주세요.', 'err'); return; }
+
+    setSaveStatus('저장 중...', '');
+
+    const now = new Date();
+    const dateStr = now.getFullYear() + '년 ' + (now.getMonth()+1) + '월 ' + now.getDate() + '일';
+
+    if (editIdx !== '') {
+      posts[parseInt(editIdx)] = { title, excerpt, body, date: posts[parseInt(editIdx)].date };
+    } else {
+      posts.unshift({ title, excerpt, body, date: dateStr });
+    }
+
+    try {
+      const res = await githubPut(
+        DATA_FILE,
+        JSON.stringify(posts, null, 2),
+        fileSha,
+        editIdx !== '' ? `글 수정: ${title}` : `새 글: ${title}`
+      );
+      if (!res.ok) throw new Error('저장 실패');
+      const data = await res.json();
+      fileSha = data.content.sha;
+      setSaveStatus('✓ 저장되었습니다!', 'ok');
+      clearForm();
+      renderAll();
+    } catch (e) {
+      setSaveStatus('오류: ' + e.message, 'err');
+      if (editIdx !== '') posts[parseInt(editIdx)] = posts[parseInt(editIdx)]; // rollback
+    }
+  }
+
+  // ── Delete post ──
+  async function deletePost(idx) {
+    if (!confirm('이 글을 삭제할까요?')) return;
+    posts.splice(idx, 1);
+    try {
+      const res = await githubPut(DATA_FILE, JSON.stringify(posts, null, 2), fileSha, '글 삭제');
+      if (!res.ok) throw new Error('삭제 실패');
+      const data = await res.json();
+      fileSha = data.content.sha;
+      renderAll();
+    } catch (e) {
+      alert('삭제 오류: ' + e.message);
+    }
+  }
+
+  // ── Edit post ──
+  function editPost(idx) {
+    const p = posts[idx];
+    document.getElementById('post-title-input').value   = p.title;
+    document.getElementById('post-excerpt-input').value = p.excerpt;
+    document.getElementById('post-body-input').value    = p.body;
+    document.getElementById('edit-index').value         = idx;
+    document.getElementById('write-heading').textContent = '글 수정';
+    document.getElementById('cancel-btn').style.display = 'inline-flex';
+    showPage('admin');
+    document.getElementById('post-title-input').focus();
+  }
+
+  function cancelEdit() {
+    clearForm();
+  }
+
+  function clearForm() {
+    document.getElementById('post-title-input').value   = '';
+    document.getElementById('post-excerpt-input').value = '';
+    document.getElementById('post-body-input').value    = '';
+    document.getElementById('edit-index').value         = '';
+    document.getElementById('write-heading').textContent = '새 글 작성';
+    document.getElementById('cancel-btn').style.display = 'none';
+    setSaveStatus('', '');
+  }
+
+  function setSaveStatus(msg, type) {
+    const el = document.getElementById('save-status');
+    el.textContent = msg;
+    el.className = 'save-status ' + (type || '');
+  }
+
+  // ── Render ──
+  function renderAll() {
+    renderHome();
+    renderAdminList();
+  }
+
+  function renderHome() {
+    const container = document.getElementById('post-list');
+    if (posts.length === 0) {
+      container.innerHTML = '<div class="empty-state">아직 작성된 글이 없습니다.<br/>관리 탭에서 첫 글을 써보세요 ✍️</div>';
+      return;
+    }
+    container.innerHTML = posts.map((p, i) => `
+      <div class="post-item" style="animation-delay:${i * 0.08}s">
+        <div class="post-bar"></div>
+        <div>
+          <div class="post-meta">${p.date}</div>
+          <div class="post-title">${escHtml(p.title)}</div>
+          <p class="post-excerpt">${escHtml(p.excerpt)}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderAdminList() {
+    const container = document.getElementById('admin-post-list');
+    if (posts.length === 0) {
+      container.innerHTML = '<p style="color:var(--muted);font-size:0.88rem;font-style:italic;">아직 작성된 글이 없습니다.</p>';
+      return;
+    }
+    container.innerHTML = posts.map((p, i) => `
+      <div class="admin-post-item">
+        <div>
+          <div class="admin-post-title">${escHtml(p.title)}</div>
+          <div class="admin-post-date">${p.date}</div>
+        </div>
+        <div class="admin-post-btns">
+          <button class="edit-post-btn"   onclick="editPost(${i})">수정</button>
+          <button class="delete-post-btn" onclick="deletePost(${i})">삭제</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Navigation ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('visible');
+    document.getElementById('btn-' + id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Init ──
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedToken = getToken();
+    if (savedToken) {
+      document.getElementById('token-input').value = '••••••••••••••••••••';
+      setTokenStatus('토큰이 저장되어 있습니다. 불러오는 중...', 'ok');
+      loadPosts();
+    }
+  });
+</script>
+</body>
+</html>
